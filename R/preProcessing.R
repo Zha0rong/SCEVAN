@@ -71,7 +71,7 @@ annotateGenes <- function(mtx, organism = "human"){
 #' @examples
 #' count_mtx_annot <- annotateGenes(count_mtx)
 #' @export
-preprocessingMtx <- function(count_mtx, sample, ngenes_chr=5, perc_genes=0.1, par_cores=20, findConfident = TRUE, AdditionalGeneSets = NULL, SCEVANsignatures = TRUE, organism = "human"){
+preprocessingMtx <- function(count_mtx, sample, ngenes_chr=5,ngene.threshold=0, perc_genes=0.1, par_cores=20, findConfident = TRUE, AdditionalGeneSets = NULL, SCEVANsignatures = TRUE, organism = "human"){
   
   set.seed(123)
   
@@ -81,11 +81,11 @@ preprocessingMtx <- function(count_mtx, sample, ngenes_chr=5, perc_genes=0.1, pa
   
   genes.raw <- apply(count_mtx, 2, function(x)(sum(x>0)))
   
-  if(sum(genes.raw> 200)==0) stop("none cells have more than 200 genes")
+  if(sum(genes.raw> ngene.threshold)==0) stop("none cells have more than 200 genes")
   
-  if(sum(genes.raw<100)>1){
-    count_mtx <- count_mtx[, -which(genes.raw< 200)]
-    print(paste("filtered out ", sum(genes.raw<=200), " cells past filtering ", ncol(count_mtx), " cells", sep=""))
+  if(sum(genes.raw<ngene.threshold)>1){
+    count_mtx <- count_mtx[, -which(genes.raw< ngene.threshold)]
+    print(paste("filtered out ", sum(genes.raw<=ngene.threshold), " cells past filtering ", ncol(count_mtx), " cells", sep=""))
   }
   
   der <- apply(count_mtx,1,function(x)(sum(x>0)))/ncol(count_mtx)
